@@ -32,11 +32,13 @@ public class PostController {
 
     @GetMapping("/feed")
     public ResponseEntity<Page<PostResponse>> feed(
+            Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+        UUID userId = UUID.fromString(authentication.getName());
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 50);
-        return ResponseEntity.ok(postService.feed(PageRequest.of(safePage, safeSize)));
+        return ResponseEntity.ok(postService.feed(userId, PageRequest.of(safePage, safeSize)));
     }
 
     @GetMapping("/{postId}")
