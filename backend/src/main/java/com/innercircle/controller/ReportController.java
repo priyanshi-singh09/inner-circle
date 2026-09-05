@@ -31,7 +31,7 @@ public class ReportController {
                 .body(reportService.create(reporterId, request));
     }
 
-    @GetMapping/my-reports
+    @GetMapping("/my-reports")
     public ResponseEntity<Page<ReportResponse>> getMyReports(
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
