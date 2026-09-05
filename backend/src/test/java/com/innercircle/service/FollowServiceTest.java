@@ -2,6 +2,7 @@ package com.innercircle.service;
 
 import com.innercircle.dto.follow.FollowResponse;
 import com.innercircle.entity.User;
+import com.innercircle.repository.BlockRepository;
 import com.innercircle.repository.FollowRepository;
 import com.innercircle.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ class FollowServiceTest {
     @Mock FollowRepository followRepository;
     @Mock UserRepository userRepository;
     @Mock NotificationService notificationService;
+    @Mock BlockRepository blockRepository;
 
     @InjectMocks FollowService followService;
 
@@ -30,7 +32,7 @@ class FollowServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> followService.follow(id, id));
         assertEquals("You cannot follow yourself.", ex.getMessage());
-        verifyNoInteractions(userRepository, followRepository, notificationService);
+        verifyNoInteractions(userRepository, followRepository, notificationService, blockRepository);
     }
 
     @Test
@@ -45,6 +47,7 @@ class FollowServiceTest {
         when(target.getHandle()).thenReturn("bob");
         when(userRepository.findById(followerId)).thenReturn(Optional.of(follower));
         when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
+        when(blockRepository.existsBetween(followerId, targetId)).thenReturn(false);
         when(followRepository.existsByFollower_IdAndFollowing_Id(followerId, targetId)).thenReturn(false);
         when(followRepository.existsByFollower_IdAndFollowing_Id(targetId, followerId)).thenReturn(true);
 
