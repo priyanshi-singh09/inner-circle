@@ -1,8 +1,6 @@
 package com.innercircle.service;
 
 import com.innercircle.dto.report.CreateReportRequest;
-import com.innercircle.dto.report.ReportResponse;
-import com.innercircle.entity.Report;
 import com.innercircle.entity.User;
 import com.innercircle.repository.CommentRepository;
 import com.innercircle.repository.PostRepository;
@@ -14,11 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +45,8 @@ class ReportServiceTest {
         UUID reporterId = UUID.randomUUID();
         User reporter = mock(User.class);
         User target = mock(User.class);
+        when(reporter.getId()).thenReturn(reporterId);
+        when(target.getId()).thenReturn(reporterId);
         when(userRepository.findById(reporterId)).thenReturn(Optional.of(reporter));
         when(userRepository.findById(reporterId)).thenReturn(Optional.of(target));
 
