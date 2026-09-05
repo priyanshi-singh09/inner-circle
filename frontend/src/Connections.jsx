@@ -1,0 +1,7 @@
+import { useState } from 'react';
+import { followUser, unfollowUser } from './api.js';
+export default function Connections({ people = [], onBack }) {
+  const [items,setItems]=useState(people); const [error,setError]=useState('');
+  async function toggle(person){try{const result=person.following?await unfollowUser(person.userId):await followUser(person.userId);setItems(current=>current.map(item=>item.userId===person.userId?{...item,following:result.following,mutualConnection:result.mutualConnection}:item));}catch(err){setError(err.message);}}
+  return <main className="connections-page"><section className="connections-card"><button className="back-button" onClick={onBack}>← Back to feed</button><p className="eyebrow">CONNECTIONS</p><h1>People you choose to hear from.</h1><p className="subtitle">Following is about connection, not a popularity score. Follower counts stay out of sight.</p>{error&&<p className="auth-message">{error}</p>}{items.length===0&&<p className="empty-state">Explore people to start building your connections.</p>}{items.map(person=><article className="connection-person" key={person.userId}><div className="avatar">{person.handle?.[1]?.toUpperCase()}</div><div className="connection-info"><strong>{person.handle}</strong><span>{person.circle}{person.mutualConnection?' · Mutual connection':''}</span></div><button className="follow-button" onClick={()=>toggle(person)}>{person.following?'Following':'Connect'}</button></article>)}</section></main>;
+}
