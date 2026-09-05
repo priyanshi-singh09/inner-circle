@@ -1,0 +1,59 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #25232a;
+  background: #f7f6f3;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: #f7f6f3; }
+button { font: inherit; cursor: pointer; border: 0; }
+
+.app-shell { min-height: 100vh; padding-bottom: 82px; }
+.topbar {
+  height: 64px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; background: rgba(255,255,255,.92); border-bottom: 1px solid #e8e5df;
+  position: sticky; top: 0; z-index: 5; backdrop-filter: blur(12px);
+}
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 750; letter-spacing: -.02em; }
+.brand-mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #25232a; color: white; font-size: 15px; }
+.icon-button { background: transparent; font-size: 19px; padding: 8px; }
+.main-content { width: min(720px, calc(100% - 32px)); margin: 0 auto; }
+.welcome { padding: 42px 0 26px; }
+.eyebrow { margin: 0 0 8px; font-size: 11px; letter-spacing: .16em; font-weight: 750; color: #817b84; }
+h1 { margin: 0; font-size: clamp(30px, 6vw, 44px); line-height: 1.08; letter-spacing: -.04em; }
+.subtitle { color: #77717a; margin: 12px 0 22px; }
+.share-button { background: #25232a; color: white; border-radius: 14px; padding: 13px 18px; font-weight: 700; }
+.emotion-section { margin-bottom: 28px; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; }
+h2 { font-size: 16px; margin: 0; }
+.section-heading button { background: transparent; color: #6e6871; font-size: 13px; }
+.emotion-row { display: flex; gap: 9px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+.emotion-chip { min-width: 72px; padding: 11px 8px; border: 1px solid #e5e1db; border-radius: 14px; background: white; display: grid; gap: 5px; }
+.emotion-chip span { font-size: 22px; }
+.emotion-chip small { color: #77717a; }
+.emotion-chip.selected { border-color: #25232a; box-shadow: 0 0 0 2px rgba(37,35,42,.08); }
+.feed-tabs { display: flex; gap: 20px; border-bottom: 1px solid #e5e1db; margin-bottom: 14px; }
+.feed-tabs button { background: transparent; color: #8a848c; padding: 10px 0; font-weight: 650; border-bottom: 2px solid transparent; }
+.feed-tabs .active { color: #25232a; border-bottom-color: #25232a; }
+.post-card { background: white; border: 1px solid #e7e3dd; border-radius: 18px; padding: 18px; margin-bottom: 14px; }
+.post-meta { display: flex; gap: 11px; align-items: center; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #eeeae4; font-weight: 750; }
+.post-meta div:last-child { display: grid; gap: 2px; }
+.post-meta span { color: #8a848c; font-size: 12px; }
+.post-content { font-size: 16px; line-height: 1.55; margin: 17px 0; }
+.reactions { display: flex; gap: 7px; flex-wrap: wrap; }
+.reactions button, .comment-link { background: #f7f6f3; color: #5f5962; border-radius: 10px; padding: 8px 10px; font-size: 12px; }
+.comment-link { margin-top: 9px; background: transparent; padding-left: 0; }
+.bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; height: 70px; background: rgba(255,255,255,.96); border-top: 1px solid #e5e1db; display: flex; justify-content: center; z-index: 10; backdrop-filter: blur(12px); }
+.bottom-nav button { width: min(140px, 20vw); background: transparent; color: #8b858d; display: grid; place-items: center; gap: 2px; padding: 7px 2px; }
+.bottom-nav button span { font-size: 18px; }
+.bottom-nav small { font-size: 10px; }
+.bottom-nav .nav-active { color: #25232a; font-weight: 750; }
+
+@media (max-width: 520px) {
+  .main-content { width: min(100% - 20px, 720px); }
+  .topbar { padding: 0 12px; }
+  .welcome { padding-top: 30px; }
+  .reactions button { flex: 1; }
+}
