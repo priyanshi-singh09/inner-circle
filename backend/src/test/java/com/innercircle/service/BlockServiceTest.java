@@ -45,7 +45,6 @@ class BlockServiceTest {
         when(target.getHandle()).thenReturn("bob");
         when(userRepository.findById(blockerId)).thenReturn(Optional.of(blocker));
         when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
-        when(blockRepository.existsByBlocker_IdAndBlocked_Id(blockerId, targetId)).thenReturn(false);
 
         BlockResponse response = blockService.block(blockerId, targetId);
 
