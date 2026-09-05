@@ -22,13 +22,16 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public CommentService(CommentRepository commentRepository,
                           PostRepository postRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -53,7 +56,18 @@ public class CommentService {
         comment.setAnonymous(request.isAnonymous());
         comment.setStatus(PUBLISHED);
 
-        return toResponse(commentRepository.save(comment));
+        Comment saved = commentRepository.save(comment);
+
+        if (!post.getUser().getId().equals(userId)) {
+            String actor = comment.isAnonymous() ? "Someone" : "@" + user.getHandle();
+            notificationService.create(
+                    post.getUser().getId(),
+                    "COMMENT",
+                    postId,
+                    actor + " commented on your post.");
+        }
+
+        return toResponse(saved);
     }
 
     @Transactional(readOnly = true)
