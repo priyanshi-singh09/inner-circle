@@ -36,4 +36,21 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     Page<Post> findPersonalizedFeed(@Param("viewerId") UUID viewerId,
                                     @Param("circleId") UUID circleId,
                                     Pageable pageable);
+
+    @Query("""
+            SELECT p FROM Post p
+            WHERE p.status = 'PUBLISHED'
+              AND p.circle.id = :circleId
+              AND (:emotion IS NULL OR LOWER(p.emotion) = LOWER(:emotion))
+              AND NOT EXISTS (
+                  SELECT b FROM Block b
+                  WHERE (b.blocker.id = :viewerId AND b.blocked.id = p.user.id)
+                     OR (b.blocker.id = p.user.id AND b.blocked.id = :viewerId)
+              )
+            ORDER BY p.createdAt DESC
+            """)
+    Page<Post> findExplorePosts(@Param("viewerId") UUID viewerId,
+                                @Param("circleId") UUID circleId,
+                                @Param("emotion") String emotion,
+                                Pageable pageable);
 }
