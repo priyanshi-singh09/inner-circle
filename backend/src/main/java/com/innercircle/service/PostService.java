@@ -30,18 +30,39 @@ public class PostService {
 
         Post post = new Post();
         post.setUser(user);
+        post.setCircle(user.getCircle());
         post.setContent(request.getContent().trim());
         post.setEmotion(request.getEmotion().trim());
         post.setAnonymous(request.isAnonymous());
-        post.setStatus("ACTIVE");
+        post.setContentWarning(false);
+        post.setStatus("PUBLISHED");
 
         return toResponse(postRepository.save(post));
     }
 
     @Transactional(readOnly = true)
     public Page<PostResponse> feed(Pageable pageable) {
-        return postRepository.findByStatusOrderByCreatedAtDesc("ACTIVE", pageable)
+        return postRepository.findByStatusOrderByCreatedAtDesc("PUBLISHED", pageable)
                 .map(this::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public PostResponse get(UUID postId) {
+        return postRepository.findById(postId)
+                .filter(post -> "PUBLISHED".equals(post.getStatus()))
+                .map(this::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found."));
+    }
+
+    @Transactional
+    public void delete(UUID userId, UUID postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found."));
+        if (!post.getUser().getId().equals(userId)) {
+            throw new SecurityException("You can only delete your own post.");
+        }
+        post.setStatus("REMOVED");
+        postRepository.save(post);
     }
 
     private PostResponse toResponse(Post post) {
@@ -50,7 +71,7 @@ public class PostService {
                 post.getId(),
                 author,
                 post.getEmotion(),
-                post.getUser().getCircle().getName(),
+                post.getCircle().getName(),
                 post.getContent(),
                 post.getCreatedAt()
         );
