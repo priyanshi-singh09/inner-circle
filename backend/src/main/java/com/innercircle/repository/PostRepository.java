@@ -12,6 +12,7 @@ import java.util.UUID;
 public interface PostRepository extends JpaRepository<Post, UUID> {
     Page<Post> findByStatusOrderByCreatedAtDesc(String status, Pageable pageable);
     Page<Post> findByUser_IdAndStatusOrderByCreatedAtDesc(UUID userId, String status, Pageable pageable);
+    Page<Post> findByEmotionIgnoreCaseAndStatusOrderByCreatedAtDesc(String emotion, String status, Pageable pageable);
 
     @Query("""
             SELECT p FROM Post p
