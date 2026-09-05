@@ -14,10 +14,14 @@ import java.util.UUID;
 public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-    public FollowService(FollowRepository followRepository, UserRepository userRepository) {
+    public FollowService(FollowRepository followRepository,
+                         UserRepository userRepository,
+                         NotificationService notificationService) {
         this.followRepository = followRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -33,6 +37,11 @@ public class FollowService {
 
         if (!followRepository.existsByFollower_IdAndFollowing_Id(followerId, targetId)) {
             followRepository.save(new Follow(follower, target));
+            notificationService.create(
+                    targetId,
+                    "FOLLOW",
+                    followerId,
+                    "@" + follower.getHandle() + " followed you.");
         }
         return status(followerId, target);
     }
