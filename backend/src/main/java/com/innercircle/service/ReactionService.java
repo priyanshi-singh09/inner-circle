@@ -24,13 +24,16 @@ public class ReactionService {
     private final ReactionRepository reactionRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public ReactionService(ReactionRepository reactionRepository,
                            PostRepository postRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           NotificationService notificationService) {
         this.reactionRepository = reactionRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -41,8 +44,6 @@ public class ReactionService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
-        // A user can have at most one of each reaction type, matching the DB constraint.
-        // Switching reactions is handled by removing the user's other reaction first.
         reactionRepository.findByPost_IdAndUser_IdAndReactionType(postId, userId, type)
                 .ifPresent(reactionRepository::delete);
 
@@ -58,6 +59,15 @@ public class ReactionService {
         reaction.setUser(user);
         reaction.setReactionType(type);
         reactionRepository.save(reaction);
+
+        if (!post.getUser().getId().equals(userId)) {
+            String actor = reaction.getUser().getHandle();
+            notificationService.create(
+                    post.getUser().getId(),
+                    "REACTION",
+                    postId,
+                    "@" + actor + " reacted to your post.");
+        }
 
         return get(userId, postId);
     }
