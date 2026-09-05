@@ -41,8 +41,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResponse> feed(Pageable pageable) {
-        return postRepository.findByStatusOrderByCreatedAtDesc("PUBLISHED", pageable)
+    public Page<PostResponse> feed(UUID viewerId, Pageable pageable) {
+        User viewer = userRepository.findById(viewerId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+
+        return postRepository.findPersonalizedFeed(
+                        viewerId,
+                        viewer.getCircle().getId(),
+                        pageable)
                 .map(this::toResponse);
     }
 
