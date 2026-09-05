@@ -1,21 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-
-async function request(path, options = {}) {
-  const token = localStorage.getItem('innerCircleToken');
-  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(options.headers || {}) } });
-  if (!response.ok) { let message = 'Something went wrong.'; try { const body = await response.json(); message = body.message || body.error || message; } catch {} throw new Error(message); }
-  if (response.status === 204) return null; return response.json();
-}
-export function login(email,password){return request('/auth/login',{method:'POST',body:JSON.stringify({email,password})});}
-export function register(payload){return request('/auth/register',{method:'POST',body:JSON.stringify(payload)});}
-export function getMyProfile(){return request('/users/me');}
-export function getFeed(page=0,size=20){return request(`/posts/feed?page=${page}&size=${size}`);}
-export function createPost(content,emotion,anonymous=false){return request('/posts',{method:'POST',body:JSON.stringify({content,emotion,anonymous})});}
-export function getReactions(postId){return request(`/posts/${postId}/reactions`);}
-export function reactToPost(postId,reactionType){return request(`/posts/${postId}/reactions`,{method:'POST',body:JSON.stringify({reactionType})});}
-export function removeReaction(postId,reactionType){return request(`/posts/${postId}/reactions/${reactionType}`,{method:'DELETE'});}
-export function getComments(postId,page=0,size=20){return request(`/posts/${postId}/comments?page=${page}&size=${size}`);}
-export function createComment(postId,content,anonymous=false){return request(`/posts/${postId}/comments`,{method:'POST',body:JSON.stringify({content,anonymous})});}
-export function followUser(userId){return request(`/users/${userId}/follow`,{method:'POST'});}
-export function unfollowUser(userId){return request(`/users/${userId}/follow`,{method:'DELETE'});}
-export function getFollowStatus(userId){return request(`/users/${userId}/follow`);}
+const API_BASE_URL=import.meta.env.VITE_API_BASE_URL||'http://localhost:8080/api';
+async function request(path,options={}){const token=localStorage.getItem('innerCircleToken');const response=await fetch(`${API_BASE_URL}${path}`,{...options,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{}) ,...(options.headers||{})}});if(!response.ok){let message='Something went wrong.';try{const body=await response.json();message=body.message||body.error||message;}catch{}throw new Error(message);}if(response.status===204)return null;return response.json();}
+export function login(email,password){return request('/auth/login',{method:'POST',body:JSON.stringify({email,password})});} export function register(payload){return request('/auth/register',{method:'POST',body:JSON.stringify(payload)});} export function getMyProfile(){return request('/users/me');} export function getFeed(page=0,size=20){return request(`/posts/feed?page=${page}&size=${size}`);} export function createPost(content,emotion,anonymous=false){return request('/posts',{method:'POST',body:JSON.stringify({content,emotion,anonymous})});}
+export function getReactions(postId){return request(`/posts/${postId}/reactions`);} export function reactToPost(postId,reactionType){return request(`/posts/${postId}/reactions`,{method:'POST',body:JSON.stringify({reactionType})});} export function removeReaction(postId,reactionType){return request(`/posts/${postId}/reactions/${reactionType}`,{method:'DELETE'});} export function getComments(postId,page=0,size=20){return request(`/posts/${postId}/comments?page=${page}&size=${size}`);} export function createComment(postId,content,anonymous=false){return request(`/posts/${postId}/comments`,{method:'POST',body:JSON.stringify({content,anonymous})});}
+export function followUser(userId){return request(`/users/${userId}/follow`,{method:'POST'});} export function unfollowUser(userId){return request(`/users/${userId}/follow`,{method:'DELETE'});} export function getFollowStatus(userId){return request(`/users/${userId}/follow`);}
+export function getNotifications(page=0,size=20){return request(`/notifications?page=${page}&size=${size}`);} export function markNotificationRead(notificationId){return request(`/notifications/${notificationId}/read`,{method:'PATCH'});} export function markAllNotificationsRead(){return request('/notifications/read-all',{method:'PATCH'});}
