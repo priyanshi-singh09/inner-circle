@@ -113,6 +113,15 @@ CREATE TABLE notifications (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL CHECK (length(trim(content)) > 0),
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE moderation_actions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     moderator_id UUID NOT NULL REFERENCES users(id),
@@ -135,6 +144,8 @@ CREATE INDEX idx_follows_following ON follows(following_id);
 CREATE INDEX idx_follows_follower ON follows(follower_id);
 CREATE INDEX idx_notifications_user_created ON notifications(user_id, created_at DESC);
 CREATE INDEX idx_reports_status_created ON reports(status, created_at ASC);
+CREATE INDEX idx_messages_conversation ON messages(sender_id, recipient_id, created_at ASC);
+CREATE INDEX idx_messages_recipient_read ON messages(recipient_id, is_read, created_at DESC);
 
 -- Useful safety/privacy lookups.
 CREATE INDEX idx_blocks_blocked ON blocks(blocked_id);
