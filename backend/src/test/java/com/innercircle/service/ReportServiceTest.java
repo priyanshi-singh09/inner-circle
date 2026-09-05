@@ -32,23 +32,19 @@ class ReportServiceTest {
         CreateReportRequest request = new CreateReportRequest();
         request.setReason("spam");
         UUID reporterId = UUID.randomUUID();
-        when(userRepository.findById(reporterId)).thenReturn(Optional.of(mock(User.class)));
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> reportService.create(reporterId, request));
         assertEquals("A user, post, or comment must be reported.", ex.getMessage());
-        verifyNoInteractions(reportRepository, postRepository, commentRepository);
+        verifyNoInteractions(userRepository, reportRepository, postRepository, commentRepository);
     }
 
     @Test
     void cannotReportYourself() {
         UUID reporterId = UUID.randomUUID();
         User reporter = mock(User.class);
-        User target = mock(User.class);
         when(reporter.getId()).thenReturn(reporterId);
-        when(target.getId()).thenReturn(reporterId);
         when(userRepository.findById(reporterId)).thenReturn(Optional.of(reporter));
-        when(userRepository.findById(reporterId)).thenReturn(Optional.of(target));
 
         CreateReportRequest request = new CreateReportRequest();
         request.setReportedUserId(reporterId);
@@ -57,6 +53,6 @@ class ReportServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> reportService.create(reporterId, request));
         assertEquals("You cannot report yourself.", ex.getMessage());
-        verifyNoInteractions(reportRepository);
+        verifyNoInteractions(reportRepository, postRepository, commentRepository);
     }
 }
