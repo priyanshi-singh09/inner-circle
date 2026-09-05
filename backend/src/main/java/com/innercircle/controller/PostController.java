@@ -38,4 +38,18 @@ public class PostController {
         int safeSize = Math.min(Math.max(size, 1), 50);
         return ResponseEntity.ok(postService.feed(PageRequest.of(safePage, safeSize)));
     }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponse> get(@PathVariable UUID postId) {
+        return ResponseEntity.ok(postService.get(postId));
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> delete(
+            Authentication authentication,
+            @PathVariable UUID postId) {
+        UUID userId = UUID.fromString(authentication.getName());
+        postService.delete(userId, postId);
+        return ResponseEntity.noContent().build();
+    }
 }
