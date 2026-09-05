@@ -1,5 +1,7 @@
 package com.innercircle.service;
 
+import com.innercircle.dto.auth.LoginRequest;
+import com.innercircle.dto.auth.LoginResponse;
 import com.innercircle.dto.auth.RegisterRequest;
 import com.innercircle.dto.auth.RegisterResponse;
 import com.innercircle.entity.Circle;
@@ -7,6 +9,8 @@ import com.innercircle.entity.User;
 import com.innercircle.exception.ConflictException;
 import com.innercircle.repository.CircleRepository;
 import com.innercircle.repository.UserRepository;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +24,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final CircleRepository circleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     public AuthService(UserRepository userRepository,
                        CircleRepository circleRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       AuthenticationManager authenticationManager,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
         this.circleRepository = circleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -35,8 +45,8 @@ public class AuthService {
         String handle = request.getHandle().trim().toLowerCase(Locale.ROOT);
         LocalDate dob = request.getDateOfBirth();
 
-        if (!handle.matches("^[a-zA-Z0-9_]{3,30}$")) {
-            throw new IllegalArgumentException("Handle must be 3-30 characters and contain only letters, numbers, or underscores.");
+        if (!handle.matches("^[a-z0-9_]{3,30}$")) {
+            throw new IllegalArgumentException("Handle may contain only letters, numbers, and underscores.");
         }
         if (dob.isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Date of birth cannot be in the future.");
@@ -46,7 +56,6 @@ public class AuthService {
         if (age < 13) {
             throw new IllegalArgumentException("You must be at least 13 years old to create an account.");
         }
-
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("An account with this email already exists.");
         }
@@ -71,6 +80,23 @@ public class AuthService {
         return new RegisterResponse(
                 "Registration successful",
                 new RegisterResponse.UserSummary(saved.getId(), saved.getHandle(), circle.getName())
+        );
+    }
+
+    public LoginResponse login(LoginRequest request) {
+        String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, request.getPassword())
+        );
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("Authenticated user could not be found."));
+
+        String token = jwtService.generateToken(user.getId(), user.getEmail());
+        return new LoginResponse(
+                token,
+                "Bearer",
+                new LoginResponse.UserSummary(user.getId(), user.getHandle(), user.getCircle().getName())
         );
     }
 }
