@@ -1,0 +1,58 @@
+package com.innercircle.service;
+
+import com.innercircle.dto.post.CreatePostRequest;
+import com.innercircle.dto.post.PostResponse;
+import com.innercircle.entity.Post;
+import com.innercircle.entity.User;
+import com.innercircle.repository.PostRepository;
+import com.innercircle.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@Service
+public class PostService {
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public PostResponse create(UUID userId, CreatePostRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+
+        Post post = new Post();
+        post.setUser(user);
+        post.setContent(request.getContent().trim());
+        post.setEmotion(request.getEmotion().trim());
+        post.setAnonymous(request.isAnonymous());
+        post.setStatus("ACTIVE");
+
+        return toResponse(postRepository.save(post));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostResponse> feed(Pageable pageable) {
+        return postRepository.findByStatusOrderByCreatedAtDesc("ACTIVE", pageable)
+                .map(this::toResponse);
+    }
+
+    private PostResponse toResponse(Post post) {
+        String author = post.isAnonymous() ? "Anonymous" : "@" + post.getUser().getHandle();
+        return new PostResponse(
+                post.getId(),
+                author,
+                post.getEmotion(),
+                post.getUser().getCircle().getName(),
+                post.getContent(),
+                post.getCreatedAt()
+        );
+    }
+}
