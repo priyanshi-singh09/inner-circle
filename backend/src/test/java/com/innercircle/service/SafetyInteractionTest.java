@@ -99,6 +99,18 @@ class SafetyInteractionTest {
         assertThrows(IllegalArgumentException.class,()->service.send(senderId,recipientId,request));
     }
 
+    @Test
+    void inactiveUserCannotReceiveMessages() {
+        UUID senderId=UUID.randomUUID(),recipientId=UUID.randomUUID(),circleId=UUID.randomUUID();
+        User sender=user("sender",circleId),recipient=user("recipient",circleId);
+        recipient.setStatus("SUSPENDED");
+        when(userRepository.findById(senderId)).thenReturn(Optional.of(sender));
+        when(userRepository.findById(recipientId)).thenReturn(Optional.of(recipient));
+        MessageService service=new MessageService(messageRepository,userRepository,followRepository,blockRepository);
+        SendMessageRequest request=new SendMessageRequest(); request.setContent("hello");
+        assertThrows(IllegalArgumentException.class,()->service.send(senderId,recipientId,request));
+    }
+
     private User user(String handle,UUID circleId){
         Circle circle=new Circle();
         setIdForTest(circle,circleId);
