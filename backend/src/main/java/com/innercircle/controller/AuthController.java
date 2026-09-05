@@ -1,5 +1,7 @@
 package com.innercircle.controller;
 
+import com.innercircle.dto.auth.LoginRequest;
+import com.innercircle.dto.auth.LoginResponse;
 import com.innercircle.dto.auth.RegisterRequest;
 import com.innercircle.dto.auth.RegisterResponse;
 import com.innercircle.service.AuthService;
@@ -23,5 +25,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }
