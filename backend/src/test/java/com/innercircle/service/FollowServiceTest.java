@@ -48,7 +48,8 @@ class FollowServiceTest {
         when(userRepository.findById(followerId)).thenReturn(Optional.of(follower));
         when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
         when(blockRepository.existsBetween(followerId, targetId)).thenReturn(false);
-        when(followRepository.existsByFollower_IdAndFollowing_Id(followerId, targetId)).thenReturn(false);
+        when(followRepository.existsByFollower_IdAndFollowing_Id(followerId, targetId))
+                .thenReturn(false, true);
         when(followRepository.existsByFollower_IdAndFollowing_Id(targetId, followerId)).thenReturn(true);
 
         FollowResponse response = followService.follow(followerId, targetId);
